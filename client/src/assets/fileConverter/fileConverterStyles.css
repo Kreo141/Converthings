@@ -6,36 +6,105 @@
     height: fit-content;
 }
 
-.file-type-select{
-    height: 150px;
-    padding: 10px;
+/* SELECT FILE TYPE CONTAINER */
+    .file-type-select{
+        height: 150px;
+        padding: 10px;
+
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+
+        box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.171);
+        border-radius: 20px;
+        transition: box-shadow 0.3s ease;
+    }
+    .file-type-select:hover{
+        box-shadow: 0px 0px 20px rgba(253, 6, 253, 0.507);
+        cursor: pointer;
+    }
+
+    .file-type-logo-container{
+        height: 100px;
+    }
+    .file-type-logo{
+        height: 100%;
+    }
+
+    .left{
+        gap: 30px;
+    }
+
+    .right{
+        margin-right: 10px;
+    }
+
+/* TODO: UPLOAD FILE MODAL */
+.upload-file-modal-container{
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+
+    background-color: rgba(0, 0, 0, 0.301);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+}
+
+.upload-file-modal{
+    height: 25em;
+    width: 30em;
+
+    background-color: white;
+    border-radius: 20px;
+}
+
+.head{
+    height: 10%;
+    position: relative;
+    padding: 25px;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.219);
+}
+.upload-modal-head-label{
+    font-weight: bold;
+}
+
+.upload-modal-head-description{
+    opacity: 0.5;
+}
+
+.upload-modal-close{
+    font-size: 10px;
+    position: absolute;
+    right: 30px;
+    border: 1px solid black;
+    height: 12px;
+    opacity: 0.5;
+    padding: 5px;
+    border-radius: 100px;
+}.upload-modal-close:hover{
+    cursor: pointer;
+}
+
+.main{
+    height: 60%;
+    border: dashed 2px rgba(0, 0, 0, 0.219);
+    border-radius: 15px;
+    margin: 30px;
 
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
 
-    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.171);
-    border-radius: 20px;
-    transition: box-shadow 0.3s ease;
-}
-.file-type-select:hover{
-    box-shadow: 0px 0px 20px rgba(253, 6, 253, 0.507);
+    gap: 15px;
 }
 
-
-.file-type-logo-container{
-    height: 100px;
+.upload-modal-cloud-icon{
+    font-size: 2em;
 }
-.file-type-logo{
-    height: 100%;
-}
-
-.left{
-    gap: 30px;
-}
-
-.right{
-    margin-right: 10px;
-}
-
