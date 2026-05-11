@@ -1,0 +1,22 @@
+[
+    {
+        "name" : "Image",
+        "logoSrc" : "https://img.icons8.com/sf-regular-filled/1200/image.jpg",
+        "supportedFormat" : ["jpg", "jpeg", "png", "gif", "webp", "svg", "bmp", "tif", "tiff", "ico", "heic", "avif"]
+    },
+    {
+        "name" : "Video",
+        "logoSrc" : "https://png.pngtree.com/png-vector/20250831/ourmid/pngtree-flat-clapperboard-video-icon-black-and-white-striped-top-with-simple-png-image_17345655.webp",
+        "supportedFormat" : ["mp4", "mov", "avi", "mkv", "webm", "flv", "wmv", "m4v", "mpg", "mpeg", "3gp"]
+    },
+    {
+        "name" : "Audio",
+        "logoSrc" : "https://upload.wikimedia.org/wikipedia/commons/2/21/Speaker_Icon.svg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+        "supportedFormat" : ["mp3", "wav", "ogg", "flac", "aac", "m4a", "wma", "opus", "amr"]
+    },
+    {
+        "name" : "Document",
+        "logoSrc" : "https://www.iconpacks.net/icons/1/free-document-icon-901-thumb.png",
+        "supportedFormat" : ["pdf", "doc", "docx", "txt", "rtf", "odt", "pages"]
+    }
+]
