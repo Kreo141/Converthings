@@ -1,6 +1,13 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+@theme {
+    --color-custom-box: black;
+    
+}
+
 *{
     margin: 0;
-    color: black;
     font-family: sans-serif;
 }
 
@@ -12,6 +19,14 @@
     align-items: center;
     gap: 30px;
     border: 1px solid rgba(0, 0, 0, 0.164);
+}
+
+.return-button{
+    height: 100%;
+}
+
+.return-button-img{
+    height: 100%;
 }
 
 .page{

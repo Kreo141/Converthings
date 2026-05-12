@@ -40,7 +40,7 @@
         margin-right: 10px;
     }
 
-/* TODO: UPLOAD FILE MODAL */
+/*! UPLOAD FILE MODAL */
 .upload-file-modal-container{
     height: 100%;
     width: 100%;
@@ -64,10 +64,10 @@
     border-radius: 20px;
 }
 
-.head{
-    height: 10%;
+.modal-head{
+    height: 20%;
     position: relative;
-    padding: 25px;
+    padding: 25px 25px 25px 25px;
     border-bottom: 2px solid rgba(0, 0, 0, 0.219);
 }
 .upload-modal-head-label{
@@ -107,4 +107,45 @@
 
 .upload-modal-cloud-icon{
     font-size: 2em;
+}
+
+.browse-file-btn, .convert-file-btn{
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.browse-file-btn{
+    background-color: rgba(6, 224, 253, 0.507);
+}
+
+.convert-file-btn{
+    background-color: rgba(6, 253, 60, 0.507);
+}
+
+.orChooseAnother{
+    text-decoration: underline;
+}
+
+
+/* TODO: UPLOADING MODAL */
+.uploading-modal{
+    background-color: white;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.uploading-modal-header{
+    font-size: 1.2em;
+}
+
+.progress-container{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 15px;
 }

@@ -15,8 +15,8 @@ function AppContent(){
     <>
         { isNavVisible &&
           <nav className='navigator'>
-              <button onClick={() => navigate(-1)}>
-                <img src='https://cdn-icons-png.flaticon.com/512/109/109618.png' height="30px"/>
+              <button className='return-button'  onClick={() => navigate(-1)}>
+                <img className='return-button-img' src='https://cdn-icons-png.flaticon.com/512/109/109618.png' height="30px"/>
               </button>
           </nav>
         }
