@@ -1,11 +1,6 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
-@theme {
-    --color-custom-box: black;
-    
-}
-
 *{
     margin: 0;
     font-family: sans-serif;
@@ -82,4 +77,3 @@
     align-items: center;
     justify-content: center;
 }
-

@@ -25,7 +25,7 @@ app.post('/convert/Image', upload.single('file'), (req, res) => {
         return res.status(400).json({ error: "No file uploaded" });
     }
 
-    // 2. Access the file via req.file, NOT req.Image
+    // 2. Access the file via req.file
     console.log("File received:", req.file);
 
     res.json({
@@ -35,7 +35,6 @@ app.post('/convert/Image', upload.single('file'), (req, res) => {
     });
 });
 
-// Start server
 const PORT = 5001
 
 app.listen(PORT, () => {

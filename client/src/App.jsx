@@ -3,7 +3,7 @@ import './App.css'
 import { BrowserRouter, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom'
 
 import Home from './assets/homePage/Home.jsx'
-import FileConverter from './assets/fileConverter/Upload'
+import FileConverter from './assets/fileConverter/FileConverter.jsx'
 
 function AppContent(){
   const location = useLocation()
@@ -23,7 +23,7 @@ function AppContent(){
           
         <Routes>
           <Route path='/' element={ <Home /> } />
-          <Route path='/converter' element={ <FileConverter /> } />
+          <Route path='/FileConverter' element={ <FileConverter /> } />
         </Routes>
     </>
   )

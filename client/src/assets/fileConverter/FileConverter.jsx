@@ -1,8 +1,9 @@
-import './fileConverterStyles.css'
+import './uploadStyles.css'
+import { useNavigate } from 'react-router-dom'
 import conversionTypes from './conversionTypes.json'
 import { useState, useEffect, useRef } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faX, faFile, faCloud, faProjectDiagram } from '@fortawesome/free-solid-svg-icons'
+import { faX, faFile, faCloud, faProjectDiagram, faRightLong } from '@fortawesome/free-solid-svg-icons'
 
 function FileConverter(){
 
@@ -63,6 +64,10 @@ function UploadFileModal({useFileType, showFileModal, setShowFileModal}){
     const [selectedFile, setSelectedFile] = useState(null)
     const [isToUpload, setIsToUpload] = useState(false);
     const [progress, setProgress] = useState(0)
+    const [isShowConvertModal, setIsShowConvertModal] = useState(false)
+    const [selectedConversionFormat, setSelectedConversionFormat] = useState("None")
+    const [fileIDFromServer, setFileIDFromServer] = useState(null)
+    const navigate = useNavigate()
 
     const selectedType = conversionTypes.find(
         type => type.name === useFileType
@@ -74,9 +79,11 @@ function UploadFileModal({useFileType, showFileModal, setShowFileModal}){
             .join(",")
         : ""
 
+    // ! HERE HERE HERE
     useEffect(() => {
         if (progress == 100){
-            setShowFileModal(false)
+            setIsToUpload(false)
+            setIsShowConvertModal(true)
         }
     }, [progress])
 
@@ -109,8 +116,6 @@ function UploadFileModal({useFileType, showFileModal, setShowFileModal}){
         } else {
             alert('This file is not supported or wrong file type')
         }
-
-        
     }
 
     function handleFileChange(e){
@@ -123,23 +128,13 @@ function UploadFileModal({useFileType, showFileModal, setShowFileModal}){
         }
     }
 
-
-
-    function handleConvert(){
+    function handleUpload(){
         setIsToUpload(true)
         setFileName(null)
         let formData = new FormData()
 
         formData.append("file", selectedFile, fileName)
-        //ormData.append
-        alert(useFileType + " " + selectedFile + " " + fileName)
-
-        // fetch(`http://127.0.0.1:5001/convert/${useFileType}`, {
-        //     method: 'POST',
-        //     body: formData,
-        // })
-        // .then(res => res.json())
-        // .then(data => console.log(data))
+        console.log(useFileType + " " + selectedFile + " " + fileName)
 
         const xhr = new XMLHttpRequest()
 
@@ -161,6 +156,7 @@ function UploadFileModal({useFileType, showFileModal, setShowFileModal}){
         xhr.onload = () => {
             if(xhr.status === 200){
                 console.log(JSON.parse(xhr.responseText))
+                setFileIDFromServer(JSON.parse(xhr.responseText).filename)
             }
         }
 
@@ -172,9 +168,13 @@ function UploadFileModal({useFileType, showFileModal, setShowFileModal}){
         xhr.send(formData)
     }
 
+    function handleConversion(){
+
+    }
+
     return(
         <div className='upload-file-modal-container'>
-            { !isToUpload && <div className='upload-file-modal'>
+            { (!isToUpload && !isShowConvertModal)  && <div className='upload-file-modal'>
                 <input
                     ref={inputFileRef}
                     type='file'
@@ -201,7 +201,7 @@ function UploadFileModal({useFileType, showFileModal, setShowFileModal}){
 
                     { fileName && <>
                         <h3>{fileName}</h3>
-                        <button className='convert-file-btn' onClick={() => handleConvert()}>Convert?</button>
+                        <button className='convert-file-btn' onClick={() => handleUpload()}>Upload for conversion?</button>
                         <a className='orChooseAnother' onClick={() => inputFileRef.current.click()}>or choose other {useFileType}</a>
                     </>}
                 </div>
@@ -217,9 +217,46 @@ function UploadFileModal({useFileType, showFileModal, setShowFileModal}){
                 </div>
             </>}
 
-            {
+            { isShowConvertModal && <>
+                <div className='convert-modal'>
+                    <div className='convert-modal-head'>
+                        <h3>Select format to convert</h3>
+                        <FontAwesomeIcon icon={faX} className='convert-modal-close' onClick={() => {onCloseModalClick(showFileModal, setShowFileModal)}}/>
+                    </div>
 
-            }
+                    <div className='convert-modal-main'>
+                        <h1>{selectedFile.name}</h1>
+                        
+                        <div className='convert-modal-format'>
+                            <p className='file-format-badge original-format'>{(() => {
+                                let fileNameSplit = selectedFile.name.split('.')
+
+                                return (
+                                    fileNameSplit[fileNameSplit.length - 1]
+                                )
+                            })()}
+                            </p>
+
+                            <FontAwesomeIcon icon={faRightLong} />
+
+                            <div className="dropdown dropdown-hover">
+                                <div tabIndex={0} role="button" className="btn m-1">{selectedConversionFormat}</div>
+                                <ul tabIndex="-1" className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
+                                    {
+                                        selectedType.supportedFormat.map(format => {
+                                            if(selectedFile.name.includes(format)){
+                                                return(false)
+                                            }
+                                            return(<li onClick={() => setSelectedConversionFormat(format)}><a>{format}</a></li>)
+                                        })
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                        <button className='convert-btn'>Convert</button>
+                    </div>
+                </div>
+            </>}
         </div>
     )
 }
