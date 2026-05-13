@@ -4,6 +4,7 @@ import conversionTypes from './conversionTypes.json'
 import { useState, useEffect, useRef } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faX, faFile, faCloud, faProjectDiagram, faRightLong } from '@fortawesome/free-solid-svg-icons'
+import  {uploadFileService} from './services/uploadFileService.js'
 
 function FileConverter(){
 
@@ -128,44 +129,24 @@ function UploadFileModal({useFileType, showFileModal, setShowFileModal}){
         }
     }
 
-    function handleUpload(){
+    async function handleUpload(){
         setIsToUpload(true)
         setFileName(null)
-        let formData = new FormData()
 
-        formData.append("file", selectedFile, fileName)
-        console.log(useFileType + " " + selectedFile + " " + fileName)
+        try{
+            const data = await uploadFileService(
+                selectedFile,
+                selectedFile.name,
+                useFileType,
+                (percent) => setProgress(percent)
+            );
 
-        const xhr = new XMLHttpRequest()
-
-        xhr.open(
-            "POST",
-            `http://127.0.0.1:5001/convert/${useFileType}`
-        )
-
-        xhr.upload.onprogress = (event) => {
-            if(event.lengthComputable) {
-                const percent = Math.round(
-                    (event.loaded / event.total) * 100
-                )
-
-                setProgress(percent)
-            }
+            console.log("Sucess", data)
+            setFileIDFromServer(data.filename)
+        } catch(error) {
+            alert(error.message)
+            setIsToUpload(false)
         }
-
-        xhr.onload = () => {
-            if(xhr.status === 200){
-                console.log(JSON.parse(xhr.responseText))
-                setFileIDFromServer(JSON.parse(xhr.responseText).filename)
-            }
-        }
-
-        xhr.onerror = () => {
-            alert("Upload failed")
-            console.log("Upload Failed")
-        }
-
-        xhr.send(formData)
     }
 
     function handleConversion(){
