@@ -150,7 +150,7 @@ function UploadFileModal({useFileType, showFileModal, setShowFileModal}){
     }
 
     function handleConversion(){
-
+        alert('asda')
     }
 
     return(
@@ -234,7 +234,7 @@ function UploadFileModal({useFileType, showFileModal, setShowFileModal}){
                                 </ul>
                             </div>
                         </div>
-                        <button className='convert-btn'>Convert</button>
+                        <button className='convert-btn' onClick={() => handleConversion()}>Convert</button>
                     </div>
                 </div>
             </>}

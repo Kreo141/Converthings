@@ -1,0 +1,5 @@
+nodemodules
+uploads
+.git
+.gitignore
+Dockerfile
