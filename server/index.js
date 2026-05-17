@@ -6,7 +6,7 @@ const ffmpeg = require('fluent-ffmpeg')
 
 const app = express()
 
-ffmpeg().setFfmpegPath('E:/DevEnv/Projects/MajorProjects/Basic-Tools/ffmpeg-2026-05-13-git-a327bc0561-essentials_build/bin/ffmpeg.exe')
+ffmpeg.setFfmpegPath('E:/DevEnv/Projects/MajorProjects/Basic-Tools/ffmpeg-2026-05-13-git-a327bc0561-essentials_build/bin/ffmpeg.exe')
 
 app.use(cors())
 app.use(express.json())
@@ -21,6 +21,10 @@ const upload = multer({ dest: uploadDir });
 app.get('/', (req, res) => {
     res.json({ message: "Hello from express" })
 })
+
+//* Init Important Variables
+const conversionProgress = {} 
+
 
 //* Uploading Routes
 app.post('/upload/Image', upload.single('file'), (req, res) => {
@@ -80,6 +84,11 @@ app.post('/convert/Video', (req, res) => {
         .on('start', commandLine => {
             console.log('FFmpeg started:', commandLine)
         })
+        .on('progress', progress => {
+            console.log(progress)
+            console.log(conversionProgress[fileID])
+            conversionProgress[fileID] = progress.percent || 0
+        })
         .on('end', () => {
             console.log('Conversion done')
 
@@ -96,6 +105,57 @@ app.post('/convert/Video', (req, res) => {
         })
         .run()
 })
+
+app.post('/convert/Audio', (req, res) => {
+    console.log('Conversion Request')
+
+    const { fileID, originalFormat, toConvertTo } = req.body
+
+    console.log(req.body)
+
+    ffmpeg()
+        .input(`uploads/toConvert/${fileID}`)
+        .inputFormat(originalFormat)
+        .output(`uploads/converted/${fileID}.${toConvertTo}`)
+        .on('start', commandLine => {
+            console.log('FFmpeg started:', commandLine)
+        })
+        .on('progress', progress => {
+            console.log(progress)
+
+            conversionProgress[fileId] = progress.percent || 0
+        })
+        .on('end', () => {
+            console.log('Conversion done')
+            console.log(conversionProgress[fileID])
+            conversionProgress[fileID] = 100
+            res.json({
+                message: "File Converted!"
+            })
+        })
+        .on('error', err => {
+            console.log('File conversion error. FFmpeg error')
+
+            res.status(500).json({
+                error: err.message
+            })
+        })
+        .run()
+})
+
+
+
+
+//* Progress Feedback
+app.get('/convert/:id', (req, res) => {
+    const fileID = req.params.id
+
+    res.json({
+        progress: conversionProgress[fileID]
+    })
+})
+
+
 
 const PORT = 5001
 

@@ -60,17 +60,18 @@ function FileTypeSelect( {fileType, logoSrc, supportedFormat, showFileModal, set
 
 function Modals({useFileType, showFileModal, setShowFileModal}){
     const inputFileRef = useRef(null);
-    const [isDragging, setIsDragging] = useState(false)
     const [fileName, setFileName] = useState("")
-    const [fileIDFromServer, setFileIDFromServer] = useState(null)
     const [selectedFile, setSelectedFile] = useState(null)
     const [currentFormat, setCurrentFormat] = useState(null)
     const [isToUpload, setIsToUpload] = useState(false);
     const [isShowConvertModal, setIsShowConvertModal] = useState(false)
     const [selectedConversionFormat, setSelectedConversionFormat] = useState("None")
     const [progress, setProgress] = useState(0)
+    const [isConverting, setIsConverting] = useState(false)
+    const [convertProgress, setConvertProgress] = useState(0)
 
     const fileIDRef = useRef(null); 
+    const progressIntervalRef = useRef(null)
 
     const selectedType = conversionTypes.find(
         type => type.name === useFileType
@@ -82,12 +83,24 @@ function Modals({useFileType, showFileModal, setShowFileModal}){
             .join(",")
         : ""
 
-    // useEffect(() => {
-    //     if (progress == 100){
-    //         setIsToUpload(false)
-    //         setIsShowConvertModal(true)
-    //     }
-    // }, [progress])
+    useEffect(() => {
+        if(!isConverting) return
+
+        setConvertProgress(0)
+
+        progressIntervalRef.current = setInterval(async () => {
+            const req = await fetch(`http://127.0.0.1:5001/convert/${fileIDRef.current}`)
+            const data = await req.json()
+
+            setConvertProgress(Math.trunc(data.progress))
+        }, 2000)
+    }, [isConverting])
+
+    useEffect(() => {
+        if(convertProgress == 100){
+            setIsConverting(false)
+        }
+    }, [convertProgress])
 
     function onCloseModalClick(showFileModal, setShowFileModal){
         setShowFileModal(!showFileModal)
@@ -145,7 +158,6 @@ function Modals({useFileType, showFileModal, setShowFileModal}){
             );
 
             fileIDRef.current = data.filename
-            setFileIDFromServer(data.filename)
             setIsToUpload(false)
             setIsShowConvertModal(true)
         } catch(error) {
@@ -157,8 +169,9 @@ function Modals({useFileType, showFileModal, setShowFileModal}){
         }
     }
 
-    // ! HERE HERE HERE
     async function handleConversion(toConvertTo) {
+        setIsConverting(true)
+
         try {
             const request = await fetch(
                 `http://127.0.0.1:5001/convert/${useFileType}`,
@@ -177,13 +190,12 @@ function Modals({useFileType, showFileModal, setShowFileModal}){
 
             const response = await request.json()
 
-            console.log(response.message)
+            clearInterval(progressIntervalRef.current)
+            setConvertProgress(100)
 
         } catch (error) {
             console.log(error)
         }
-        
-        alert(fileIDFromServer)
     }
 
     return(
@@ -262,7 +274,8 @@ function Modals({useFileType, showFileModal, setShowFileModal}){
                                 </ul>
                             </div>
                         </div>
-                        <button className='convert-btn' onClick={() => handleConversion(selectedConversionFormat)}>Convert</button>
+                        <progress className="progress progress-error w-56" value={convertProgress} max="100"></progress>
+                        <button className={`convert-btn ${isConverting ? "disable-btn" : ""}`} onClick={() => handleConversion(selectedConversionFormat)}>Convert</button>
                     </div>
                 </div>
             </>}
