@@ -55,7 +55,7 @@ app.post('/upload/Video', upload.single('file'), (req, res) => {
     });
 });
 
-app.get('/upload/Audio', upload.single('file'), (req, res) => {
+app.post('/upload/Audio', upload.single('file'), (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: "No file uploaded" });
     }
@@ -70,8 +70,9 @@ app.get('/upload/Audio', upload.single('file'), (req, res) => {
 
 
 //* Conversion Routes
+// TODO: Preserving video quality when converting
 app.post('/convert/Video', (req, res) => {
-    console.log('Conversion Request')
+    console.log('Video Conversion Request')
 
     const { fileID, originalFormat, toConvertTo } = req.body
 
@@ -92,6 +93,8 @@ app.post('/convert/Video', (req, res) => {
         .on('end', () => {
             console.log('Conversion done')
 
+            conversionProgress[fileID] = 100
+
             res.json({
                 message: "File Converted!"
             })
@@ -106,8 +109,9 @@ app.post('/convert/Video', (req, res) => {
         .run()
 })
 
+// TODO: mp4 to amr corrupt
 app.post('/convert/Audio', (req, res) => {
-    console.log('Conversion Request')
+    console.log('Audio Conversion Request')
 
     const { fileID, originalFormat, toConvertTo } = req.body
 
@@ -123,7 +127,7 @@ app.post('/convert/Audio', (req, res) => {
         .on('progress', progress => {
             console.log(progress)
 
-            conversionProgress[fileId] = progress.percent || 0
+            conversionProgress[fileID] = progress.percent || 0
         })
         .on('end', () => {
             console.log('Conversion done')
@@ -143,7 +147,9 @@ app.post('/convert/Audio', (req, res) => {
         .run()
 })
 
-
+app.post('/comvert/Audio', (req, res) => {
+    console.log("Image Conversion Request")
+})
 
 
 //* Progress Feedback
