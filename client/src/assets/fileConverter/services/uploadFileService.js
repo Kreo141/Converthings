@@ -16,7 +16,7 @@ export const uploadFileService = (file, fileName, useFileType, setProgress) => {
 
         xhr.open(
             "POST",
-            `http://127.0.0.1:5001/convert/${useFileType}`
+            `http://127.0.0.1:5001/upload/${useFileType}`
         )
 
         xhr.upload.onprogress = (event) => {
@@ -29,16 +29,12 @@ export const uploadFileService = (file, fileName, useFileType, setProgress) => {
             }
         }
 
-        xhr.upload.onProgress = (event) => {
-            if(event.lengthComputable){
-                const percent = Math.round((event / event.total) * 100)
-                onProgress(percent)
-            }
-        }
-
         xhr.onload = () => {
             if(xhr.status === 200){
-                console.log(JSON.parse(xhr.responseText))
+                const data = JSON.parse(xhr.responseText)
+                resolve(data) // ✅ now the await in handleUpload can continue
+            } else {
+                reject(new Error(`Server error: ${xhr.status}`)) // ✅ handle bad responses too
             }
         }
 

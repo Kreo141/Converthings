@@ -31,3 +31,7 @@ Thumbs.db
 
 # Uploaded/generated files
 server/uploads/
+
+ffmpeg/
+
+ffmpeg-2026-05-13-git-a327bc0561-essentials_build/

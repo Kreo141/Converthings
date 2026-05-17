@@ -19,7 +19,7 @@ function FileConverter(){
                 ))
             }
             {
-                showFileModal && <UploadFileModal useFileType={useFileType} showFileModal={showFileModal} setShowFileModal={setShowFileModal}/>
+                showFileModal && <Modals useFileType={useFileType} showFileModal={showFileModal} setShowFileModal={setShowFileModal}/>
             }
         </div>
     )
@@ -58,17 +58,19 @@ function FileTypeSelect( {fileType, logoSrc, supportedFormat, showFileModal, set
     )
 }
 
-function UploadFileModal({useFileType, showFileModal, setShowFileModal}){
+function Modals({useFileType, showFileModal, setShowFileModal}){
     const inputFileRef = useRef(null);
     const [isDragging, setIsDragging] = useState(false)
     const [fileName, setFileName] = useState("")
+    const [fileIDFromServer, setFileIDFromServer] = useState(null)
     const [selectedFile, setSelectedFile] = useState(null)
+    const [currentFormat, setCurrentFormat] = useState(null)
     const [isToUpload, setIsToUpload] = useState(false);
-    const [progress, setProgress] = useState(0)
     const [isShowConvertModal, setIsShowConvertModal] = useState(false)
     const [selectedConversionFormat, setSelectedConversionFormat] = useState("None")
-    const [fileIDFromServer, setFileIDFromServer] = useState(null)
-    const navigate = useNavigate()
+    const [progress, setProgress] = useState(0)
+
+    const fileIDRef = useRef(null); 
 
     const selectedType = conversionTypes.find(
         type => type.name === useFileType
@@ -80,13 +82,12 @@ function UploadFileModal({useFileType, showFileModal, setShowFileModal}){
             .join(",")
         : ""
 
-    // ! HERE HERE HERE
-    useEffect(() => {
-        if (progress == 100){
-            setIsToUpload(false)
-            setIsShowConvertModal(true)
-        }
-    }, [progress])
+    // useEffect(() => {
+    //     if (progress == 100){
+    //         setIsToUpload(false)
+    //         setIsShowConvertModal(true)
+    //     }
+    // }, [progress])
 
     function onCloseModalClick(showFileModal, setShowFileModal){
         setShowFileModal(!showFileModal)
@@ -132,6 +133,8 @@ function UploadFileModal({useFileType, showFileModal, setShowFileModal}){
     async function handleUpload(){
         setIsToUpload(true)
         setFileName(null)
+        let fileNameSplit = selectedFile.name.split('.')
+        setCurrentFormat(fileNameSplit[fileNameSplit.length - 1])
 
         try{
             const data = await uploadFileService(
@@ -141,16 +144,46 @@ function UploadFileModal({useFileType, showFileModal, setShowFileModal}){
                 (percent) => setProgress(percent)
             );
 
-            console.log("Sucess", data)
+            fileIDRef.current = data.filename
             setFileIDFromServer(data.filename)
+            setIsToUpload(false)
+            setIsShowConvertModal(true)
         } catch(error) {
+            console.log("CAUGHT ERROR:", error)
+            console.log("ERROR MESSAGE:", error.message)
+            console.log("ERROR FULL:", JSON.stringify(error))
             alert(error.message)
             setIsToUpload(false)
         }
     }
 
-    function handleConversion(){
-        alert('asda')
+    // ! HERE HERE HERE
+    async function handleConversion(toConvertTo) {
+        try {
+            const request = await fetch(
+                `http://127.0.0.1:5001/convert/${useFileType}`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        fileID: fileIDRef.current,
+                        originalFormat: currentFormat,
+                        toConvertTo: toConvertTo
+                    })
+                }
+            )
+
+            const response = await request.json()
+
+            console.log(response.message)
+
+        } catch (error) {
+            console.log(error)
+        }
+        
+        alert(fileIDFromServer)
     }
 
     return(
@@ -209,13 +242,8 @@ function UploadFileModal({useFileType, showFileModal, setShowFileModal}){
                         <h1>{selectedFile.name}</h1>
                         
                         <div className='convert-modal-format'>
-                            <p className='file-format-badge original-format'>{(() => {
-                                let fileNameSplit = selectedFile.name.split('.')
-
-                                return (
-                                    fileNameSplit[fileNameSplit.length - 1]
-                                )
-                            })()}
+                            <p className='file-format-badge original-format'>
+                                {currentFormat}
                             </p>
 
                             <FontAwesomeIcon icon={faRightLong} />
@@ -234,7 +262,7 @@ function UploadFileModal({useFileType, showFileModal, setShowFileModal}){
                                 </ul>
                             </div>
                         </div>
-                        <button className='convert-btn' onClick={() => handleConversion()}>Convert</button>
+                        <button className='convert-btn' onClick={() => handleConversion(selectedConversionFormat)}>Convert</button>
                     </div>
                 </div>
             </>}
