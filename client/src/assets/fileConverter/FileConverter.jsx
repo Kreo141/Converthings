@@ -47,7 +47,6 @@ function FileConverter() {
 // FILE TYPE CARD COMPONENT
 // ==========================================
 function FileTypeSelect({ fileType, logoSrc, supportedFormat, onSelect }) {
-    // Show top 5 formats cleanly without messy conditional mapping loops
     const visibleFormats = supportedFormat.slice(0, 5).join(', ')
     const hasMore = supportedFormat.length > 5
 

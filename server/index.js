@@ -3,6 +3,8 @@ const cors = require('cors')
 const multer = require('multer')
 const fs = require('fs')
 const ffmpeg = require('fluent-ffmpeg')
+const { exec } = require('child_process')
+const path = require('path')
 
 const app = express()
 
@@ -16,7 +18,19 @@ if (!fs.existsSync(uploadDir)){
     fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-const upload = multer({ dest: uploadDir });
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, './uploads/toConvert')
+    },
+
+    filename: (req, file, cb) => {
+        const uniqueName = Date.now() + path.extname(file.originalname)
+
+        cb(null, uniqueName)
+    }
+})
+
+const upload = multer({ storage });
 
 app.get('/', (req, res) => {
     res.json({ message: "Hello from express" })
@@ -147,8 +161,27 @@ app.post('/convert/Audio', (req, res) => {
         .run()
 })
 
-app.post('/comvert/Audio', (req, res) => {
+app.post('/convert/Image', (req, res) => {
     console.log("Image Conversion Request")
+    const { fileID, originalFormat, toConvertTo } = req.body
+    console.log(fileID)
+    exec(
+        `magick "./uploads/toConvert/${fileID}" "./uploads/converted/${fileID}.${toConvertTo}"`,
+        (error) => {
+            if(error){
+                console.log(error)
+                return res.status(500).json({
+                    error: error.message
+                })
+            }
+
+            conversionProgress[fileID] = 100
+            res.json({
+                message: "File Converted"
+            })
+        }
+    )
+
 })
 
 
