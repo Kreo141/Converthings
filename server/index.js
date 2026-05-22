@@ -110,7 +110,8 @@ app.post('/convert/Video', (req, res) => {
             conversionProgress[fileID] = 100
 
             res.json({
-                message: "File Converted!"
+                message: "File Converted!",
+                convertedFileID: `${fileID}.${toConvertTo}`
             })
         })
         .on('error', err => {
@@ -148,7 +149,8 @@ app.post('/convert/Audio', (req, res) => {
             console.log(conversionProgress[fileID])
             conversionProgress[fileID] = 100
             res.json({
-                message: "File Converted!"
+                message: "File Converted!",
+                convertedFileID: `${fileID}.${toConvertTo}`
             })
         })
         .on('error', err => {
@@ -177,16 +179,29 @@ app.post('/convert/Image', (req, res) => {
 
             conversionProgress[fileID] = 100
             res.json({
-                message: "File Converted"
+                message: "File Converted",
+                convertedFileID: `${fileID}.${toConvertTo}`
             })
         }
     )
 
 })
 
+//* Download Converted File
+app.get('/convert/download/:filename', (req, res) => {
+    const filePath = `./uploads/converted/${req.params.filename}`
+
+    res.download(filePath, (err) => {
+        if(err){
+            console.log(err)
+            res.status.send('File download failed')
+        }
+    })
+})
+
 
 //* Progress Feedback
-app.get('/convert/:id', (req, res) => {
+app.get('/convert/progress/:id', (req, res) => {
     const fileID = req.params.id
 
     res.json({
