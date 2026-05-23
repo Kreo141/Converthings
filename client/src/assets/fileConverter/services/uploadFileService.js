@@ -2,12 +2,11 @@
 *
 * @param {File} file
 * @param {string} fileName
-* @param {string} useFileType
 * @param {Function} setProgress
 *
 */
 
-export const uploadFileService = (file, fileName, useFileType, setProgress) => {
+export const uploadFileService = (file, fileName, setProgress) => {
     return new Promise((resolve, reject) => {
         const formData = new FormData()
         formData.append("file", file, fileName)
@@ -16,7 +15,7 @@ export const uploadFileService = (file, fileName, useFileType, setProgress) => {
 
         xhr.open(
             "POST",
-            `http://127.0.0.1:5001/upload/${useFileType}`
+            `http://127.0.0.1:5001/convert/upload/`
         )
 
         xhr.upload.onprogress = (event) => {

@@ -215,6 +215,12 @@
     width: 100%;
 }
 
+.download-btn{
+    background-color: rgb(104, 237, 255);
+    padding: 10px 0 10px 0;
+    border-radius: 10px;
+}
+
 .disable-btn{
     pointer-events: none;
     opacity: 0.5;         /* Visual cue it's disabled */

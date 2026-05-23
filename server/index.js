@@ -41,35 +41,7 @@ const conversionProgress = {}
 
 
 //* Uploading Routes
-app.post('/upload/Image', upload.single('file'), (req, res) => {
-    if (!req.file) {
-        return res.status(400).json({ error: "No file uploaded" });
-    }
-
-    console.log("File received:", req.file);
-
-    res.json({
-        message: "File received for conversion",
-        filename: req.file.filename,
-        originalName: req.file.originalname
-    });
-});
-
-app.post('/upload/Video', upload.single('file'), (req, res) => {
-    if (!req.file) {
-        return res.status(400).json({ error: "No file uploaded" });
-    }
-
-    console.log("File received:", req.file);
-
-    res.json({
-        message: "File received for conversion",
-        filename: req.file.filename,
-        originalName: req.file.originalname
-    });
-});
-
-app.post('/upload/Audio', upload.single('file'), (req, res) => {
+app.post('/convert/upload', upload.single('file'), (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: "No file uploaded" });
     }
@@ -80,7 +52,7 @@ app.post('/upload/Audio', upload.single('file'), (req, res) => {
         filename: req.file.filename,
         originalName: req.file.originalname,
     });
-});
+})
 
 
 //* Conversion Routes

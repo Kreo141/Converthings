@@ -78,6 +78,7 @@ function ModalController({ useFileType, onClose }) {
     const [convertProgress, setConvertProgress] = useState(0)
     const [isConverting, setIsConverting] = useState(false)
     const [selectedConversionFormat, setSelectedConversionFormat] = useState("None")
+    const [convertedFileID, setConvertedFileID] = useState(null)
 
     const selectedType = conversionTypes.find(type => type.name === useFileType)
     const acceptFormats = selectedType ? selectedType.supportedFormat.map(f => `.${f}`).join(",") : ""
@@ -87,7 +88,7 @@ function ModalController({ useFileType, onClose }) {
 
         const intervalId = setInterval(async () => {
             try {
-                const req = await fetch(`http://127.0.0.1:5001/convert/${fileIDRef.current}`)
+                const req = await fetch(`http://127.0.0.1:5001/convert/progress/${fileIDRef.current}`)
                 const data = await req.json()
                 const progressInt = Math.trunc(data.progress)
                 
@@ -113,7 +114,6 @@ function ModalController({ useFileType, onClose }) {
             const data = await uploadFileService(
                 file,
                 file.name,
-                useFileType,
                 (percent) => setUploadProgress(percent)
             )
             fileIDRef.current = data.filename
@@ -130,7 +130,7 @@ function ModalController({ useFileType, onClose }) {
         setConvertProgress(0)
 
         try {
-            await fetch(`http://127.0.0.1:5001/convert/${useFileType}`, {
+            const req = await fetch(`http://127.0.0.1:5001/convert/${useFileType}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -139,6 +139,9 @@ function ModalController({ useFileType, onClose }) {
                     toConvertTo: selectedConversionFormat
                 })
             })
+
+            const data = await req.json()
+            setConvertedFileID(data.convertedFileID)
         } catch (error) {
             console.error("Conversion triggering failed:", error)
             setIsConverting(false)
@@ -171,6 +174,7 @@ function ModalController({ useFileType, onClose }) {
                     selectedConversionFormat={selectedConversionFormat}
                     setSelectedConversionFormat={setSelectedConversionFormat}
                     convertProgress={convertProgress}
+                    convertedFileID={convertedFileID}
                     isConverting={isConverting}
                     onConvert={handleConversion}
                     onClose={onClose}
@@ -236,7 +240,7 @@ function ProgressStep({ fileName, progress }) {
 
 function ConvertStep({ 
     fileName, currentFormat, supportedFormats, selectedConversionFormat, 
-    setSelectedConversionFormat, convertProgress, isConverting, onConvert, onClose 
+    setSelectedConversionFormat, convertProgress, convertedFileID, isConverting, onConvert, onClose 
 }) {
     return (
         <div className='convert-modal'>
@@ -276,6 +280,17 @@ function ConvertStep({
                 >
                     {isConverting ? 'Converting...' : 'Convert'}
                 </button>
+
+                { (convertProgress == 100 && !isConverting)  && 
+                <button
+                    className={`download-btn ${convertProgress == 100 ? "" : "disable-btn"}`} 
+                    onClick={() => {
+                        window.location.href = `http://127.0.0.1:5001/convert/download/${convertedFileID}`
+                    }}
+                >
+                    Download
+                </button>}
+                
             </div>
         </div>
     )
