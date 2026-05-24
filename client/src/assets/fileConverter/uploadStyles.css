@@ -226,3 +226,8 @@
     opacity: 0.5;         /* Visual cue it's disabled */
     filter: grayscale(1);
 }
+
+.alert-error{
+    position: absolute;
+    top: 20px;
+}

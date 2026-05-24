@@ -56,11 +56,47 @@ app.post('/convert/upload', upload.single('file'), (req, res) => {
 
 
 //* Conversion Routes
+const presets = {
+    mp4: {
+        videoCodec: 'libx264',
+        audioCodec: 'aac',
+        options: ['-movflags +faststart']
+    },
+
+    webm: {
+        videoCodec: 'libvpx-vp9',
+        audioCodec: 'libopus'
+    },
+
+    avi: {
+        videoCodec: 'mpeg4',
+        audioCodec: 'libmp3lame'
+    },
+
+    mkv: {
+        videoCodec: 'libx264',
+        audioCodec: 'aac'
+    },
+
+    defaultPreset: {
+        videoCodec: 'libx264',
+        audioCodec: 'aac',
+        options: [
+            '-crf 23',
+            '-preset medium',
+            '-pix_fmt yuv420p', 
+            '-movflags +faststart'
+        ]
+    }
+}
+
 // TODO: Preserving video quality when converting
 app.post('/convert/Video', (req, res) => {
     console.log('Video Conversion Request')
 
     const { fileID, originalFormat, toConvertTo } = req.body
+
+    const preset = presets[toConvertTo] || presets.defaultPreset
 
     console.log(req.body)
 
@@ -68,6 +104,9 @@ app.post('/convert/Video', (req, res) => {
         .input(`uploads/toConvert/${fileID}`)
         .inputFormat(originalFormat)
         .output(`uploads/converted/${fileID}.${toConvertTo}`)
+        .videoCodec(preset.videoCodec)
+        .audioCodec(preset.audioCodec)
+        .outputOptions(preset.options || [])
         .on('start', commandLine => {
             console.log('FFmpeg started:', commandLine)
         })
@@ -96,7 +135,7 @@ app.post('/convert/Video', (req, res) => {
         .run()
 })
 
-// TODO: mp4 to amr corrupt
+// TODO: mp3 to amr corrupt
 app.post('/convert/Audio', (req, res) => {
     console.log('Audio Conversion Request')
 
