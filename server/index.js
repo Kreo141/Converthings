@@ -8,7 +8,11 @@ const path = require('path')
 
 const app = express()
 
-ffmpeg.setFfmpegPath('E:/DevEnv/Projects/MajorProjects/Basic-Tools/ffmpeg-2026-05-13-git-a327bc0561-essentials_build/bin/ffmpeg.exe')
+const isDev = false
+
+if(isDev){
+    ffmpeg.setFfmpegPath('E:/DevEnv/Projects/MajorProjects/Basic-Tools/ffmpeg-2026-05-13-git-a327bc0561-essentials_build/bin/ffmpeg.exe')
+}
 
 app.use(cors())
 app.use(express.json())

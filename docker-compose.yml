@@ -1,0 +1,11 @@
+services:
+  server:
+    build: ./server
+    ports:
+      - "5001:5001"
+  client:
+    build: ./client
+    ports:
+     - "5173:5173"
+    depends_on:
+      - server

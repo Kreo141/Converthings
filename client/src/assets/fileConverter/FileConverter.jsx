@@ -11,6 +11,11 @@ const getFileExtension = (filename) => {
     return filename.slice(((filename.lastIndexOf(".") - 1) >>> 0) + 2).toLowerCase()
 }
 
+const serverDev = "http://localhost:5001"
+const serverProd = "http://server:5001"
+const isDev = true ? serverDev : serverProd
+
+
 // ==========================================
 // MAIN CONTAINER
 // ==========================================
@@ -89,7 +94,7 @@ function ModalController({ useFileType, onClose }) {
 
         const intervalId = setInterval(async () => {
             try {
-                const req = await fetch(`http://127.0.0.1:5001/convert/progress/${fileIDRef.current}`)
+                const req = await fetch(`${isDev}/convert/progress/${fileIDRef.current}`)
                 const data = await req.json()
                 const progressInt = Math.trunc(data.progress)
                 
@@ -131,7 +136,7 @@ function ModalController({ useFileType, onClose }) {
         setConvertProgress(0)
 
         try {
-            const req = await fetch(`http://127.0.0.1:5001/convert/${useFileType}`, {
+            const req = await fetch(`${isDev}/convert/${useFileType}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -207,7 +212,7 @@ function ModalController({ useFileType, onClose }) {
 }
 
 // ==========================================
-// SUB-STEPS (Clean Separation of Concerns)
+// SUB-STEPS
 // ==========================================
 
 function UploadStep({ useFileType, acceptFormats, onClose, onFileValidated }) {
@@ -307,7 +312,7 @@ function ConvertStep({
                 <button
                     className={`download-btn ${convertProgress == 100 ? "" : "disable-btn"}`} 
                     onClick={() => {
-                        window.location.href = `http://127.0.0.1:5001/convert/download/${convertedFileID}`
+                        window.location.href = `${isDev}/convert/download/${convertedFileID}`
                     }}
                 >
                     Download
