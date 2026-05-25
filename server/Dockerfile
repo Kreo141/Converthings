@@ -8,8 +8,7 @@ RUN apt-get update  && apt-get install -y \
     libreoffice \
     && apt-get clean
 
-RUN mkdir uploads \
-    mkdir uploads/converted
+RUN mkdir -p uploads/converted
 
 COPY package*.json ./
 

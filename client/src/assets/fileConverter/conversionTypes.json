@@ -16,7 +16,7 @@
     },
     {
         "name" : "Document",
-        "logoSrc" : "https://www.iconpacks.net/icons/1/free-document-icon-901-thumb.png",
+        "logoSrc" : "https://static.thenounproject.com/png/684885-200.png",
         "supportedFormat" : ["pdf", "doc", "docx", "txt", "rtf", "odt", "pages"]
     }
 ]

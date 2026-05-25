@@ -11,7 +11,7 @@ const getFileExtension = (filename) => {
     return filename.slice(((filename.lastIndexOf(".") - 1) >>> 0) + 2).toLowerCase()
 }
 
-const serverDev = "http://localhost:5001"
+const serverDev = "http://192.168.100.12:5001"
 const serverProd = "http://server:5001"
 const isDev = true ? serverDev : serverProd
 
@@ -24,26 +24,28 @@ function FileConverter() {
     const [useFileType, setUseFileType] = useState("file")
 
     return (
-        <div className="page file-converter-root">
-            {conversionTypes.map((type) => (
-                <FileTypeSelect
-                    key={type.name}
-                    fileType={type.name}
-                    logoSrc={type.logoSrc}
-                    supportedFormat={type.supportedFormat}
-                    onSelect={(selectedType) => {
-                        setUseFileType(selectedType)
-                        setShowFileModal(true)
-                    }}
-                />
-            ))}
+        <div className='file-converter-root'>
+            <div className="page file-converter-wrapper">
+                {conversionTypes.map((type) => (
+                    <FileTypeSelect
+                        key={type.name}
+                        fileType={type.name}
+                        logoSrc={type.logoSrc}
+                        supportedFormat={type.supportedFormat}
+                        onSelect={(selectedType) => {
+                            setUseFileType(selectedType)
+                            setShowFileModal(true)
+                        }}
+                    />
+                ))}
 
-            {showFileModal && (
-                <ModalController
-                    useFileType={useFileType}
-                    onClose={() => setShowFileModal(false)}
-                />
-            )}
+                {showFileModal && (
+                    <ModalController
+                        useFileType={useFileType}
+                        onClose={() => setShowFileModal(false)}
+                    />
+                )}
+            </div>
         </div>
     )
 }
@@ -61,9 +63,10 @@ function FileTypeSelect({ fileType, logoSrc, supportedFormat, onSelect }) {
                 <div className='file-type-logo-container'>
                     <img className='file-type-logo' src={logoSrc} alt={`${fileType} logo`} />
                 </div>
-                <h3>{fileType}</h3>
+                
             </div>
             <div className='right'>
+                <h3 className='file-type-select-label'>{fileType}</h3>
                 <p>{visibleFormats}{hasMore ? ' and more' : ''}</p>
             </div>
         </div>
@@ -150,10 +153,11 @@ function ModalController({ useFileType, onClose }) {
                 const errorData = await req.json()
                 console.log(errorData.error)
                 handleError()
+                return
             }
 
             const data = await req.json()
-            setConvertedFileID()
+            await setConvertedFileID(data.convertedFileID)
         } catch (error) {
             console.error("Conversion triggering failed:", error)
             setIsConverting(false)

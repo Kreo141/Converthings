@@ -15,7 +15,7 @@ export const uploadFileService = (file, fileName, setProgress) => {
 
         xhr.open(
             "POST",
-            `http://127.0.0.1:5001/convert/upload/`
+            `http://192.168.100.12:5001/convert/upload/`
         )
 
         xhr.upload.onprogress = (event) => {

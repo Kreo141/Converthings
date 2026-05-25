@@ -8,10 +8,15 @@ const path = require('path')
 
 const app = express()
 
-const isDev = false
+const isDev = true
 
 if(isDev){
     ffmpeg.setFfmpegPath('E:/DevEnv/Projects/MajorProjects/Basic-Tools/ffmpeg-2026-05-13-git-a327bc0561-essentials_build/bin/ffmpeg.exe')
+}
+
+let libreofficeLocation = ""
+if(isDev){
+    libreofficeLocation = "C:/Program Files/LibreOffice/program/"
 }
 
 app.use(cors())
@@ -199,7 +204,32 @@ app.post('/convert/Image', (req, res) => {
             })
         }
     )
+})
 
+app.post('/convert/Document', (req, res) => {
+    console.log("Document Conversion Request")
+    const { fileID, toConvertTo} = req.body
+    console.log(fileID)
+
+    exec(
+        `"${libreofficeLocation}soffice.com" --headless --convert-to ${toConvertTo} --outdir ./uploads/converted/ ./uploads/toConvert/${fileID} `,
+        (error) => {
+            if(error){
+                console.log(error.message)
+                return res.status(500).json({
+                    message: error.message
+                })
+            }
+
+            const slice = fileID.split('.')
+            const newFileName = `${slice[0]}.${toConvertTo}`
+            
+            conversionProgress[fileID] = 100
+            res.json({
+                convertedFileID: newFileName
+            })
+        }
+    )
 })
 
 //* Download Converted File
@@ -228,6 +258,6 @@ app.get('/convert/progress/:id', (req, res) => {
 
 const PORT = 5001
 
-app.listen(PORT, () => {
-    console.log(`Server is running on 127.0.0.1:${PORT}`)
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server is running on 0.0.0.0:${PORT}`)
 })
