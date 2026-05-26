@@ -3,6 +3,15 @@
 ##### A self-hosted website that offers useful digital Tools
 ##### 
 
+## Features
+
+| Features             | Descriptions                                                      |
+| ----------------- | ------------------------------------------------------------------ |
+| File Converter |  Convert files like `Image, Video, Audio,` and `Document` <br> <br> Image: `jpg, jpeg, png, gif, webp, svg, bmp, tif, tiff, ico, heic, avif` <br> Video: `mp4, mov, avi, mkv, webm, flv, wmv, m4v, mpg, mpeg, 3gp` <br> Audio: `mp3, wav, ogg, flac, aac, m4a, wma, opus, amr` <br> Document: `pdf, doc, docx, txt, rtf, odt, pages` |
+| Media downloader | Feature not available |
+| File Compressor | Feature not available |
+| ... | Feature not available |
+
 ## Installation
 
 1. Clone this repository
@@ -23,14 +32,6 @@ cd ..
 cd server
 npm install
 ```
-## Features
-
-| Features             | Descriptions                                                      |
-| ----------------- | ------------------------------------------------------------------ |
-| File Converter |  Convert files like `Image, Video, Audio,` and `Document` <br> <br> Image: `jpg, jpeg, png, gif, webp, svg, bmp, tif, tiff, ico, heic, avif` <br> Video: `mp4, mov, avi, mkv, webm, flv, wmv, m4v, mpg, mpeg, 3gp` <br> Audio: `mp3, wav, ogg, flac, aac, m4a, wma, opus, amr` <br> Document: `pdf, doc, docx, txt, rtf, odt, pages` |
-| Media downloader | Feature not available |
-| File Compressor | Feature not available |
-| ... | Feature not available |
 
 ## Built With
 - [React](https://react.dev/) - Frontend framework
