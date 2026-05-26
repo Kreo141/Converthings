@@ -17,6 +17,22 @@
     {
         "name" : "Document",
         "logoSrc" : "https://static.thenounproject.com/png/684885-200.png",
-        "supportedFormat" : ["pdf", "doc", "docx", "txt", "rtf", "odt", "pages"]
+        "supportedFormat" : {
+            "docx": ["pdf", "doc", "odt", "rtf", "txt", "html", "epub"],
+            "doc": ["pdf", "docx", "odt", "rtf", "txt", "html"],
+            "odt": ["pdf", "docx", "doc", "rtf", "txt", "html", "epub"],
+
+            "xlsx": ["pdf", "xls", "ods", "csv", "html"],
+            "xls": ["pdf", "xlsx", "ods", "csv"],
+            "ods": ["pdf", "xlsx", "xls", "csv"],
+
+            "pptx": ["pdf", "ppt", "odp", "html", "png", "jpg"],
+            "ppt": ["pdf", "pptx", "odp"],
+            "odp": ["pdf", "pptx", "ppt"],
+
+            "txt": ["pdf", "odt", "docx"],
+            "html": ["pdf", "docx", "odt"]
+        }
     }
 ]
+

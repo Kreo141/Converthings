@@ -11,6 +11,11 @@ const getFileExtension = (filename) => {
     return filename.slice(((filename.lastIndexOf(".") - 1) >>> 0) + 2).toLowerCase()
 }
 
+const documentSupportedFormatsRaw = conversionTypes.find(item => item.name === "Document").supportedFormat
+const documentSupportedFormats = Object.keys(documentSupportedFormatsRaw)
+
+console.log(documentSupportedFormatsRaw)
+
 const serverDev = "http://192.168.100.12:5001"
 const serverProd = "http://server:5001"
 const isDev = true ? serverDev : serverProd
@@ -26,18 +31,38 @@ function FileConverter() {
     return (
         <div className='file-converter-root'>
             <div className="page file-converter-wrapper">
-                {conversionTypes.map((type) => (
-                    <FileTypeSelect
-                        key={type.name}
-                        fileType={type.name}
-                        logoSrc={type.logoSrc}
-                        supportedFormat={type.supportedFormat}
-                        onSelect={(selectedType) => {
-                            setUseFileType(selectedType)
-                            setShowFileModal(true)
-                        }}
-                    />
-                ))}
+                {conversionTypes.map((type) => {
+                    if(type.name == "Document"){
+                        console.log(documentSupportedFormats)
+                        return(
+                            <FileTypeSelect
+                                key={type.name}
+                                fileType={type.name}
+                                logoSrc={type.logoSrc}
+                                supportedFormat={documentSupportedFormats}
+                                onSelect={(selectedType) => {
+                                    setUseFileType(selectedType)
+                                    setShowFileModal(true)
+                                }}
+                            />
+                        )
+                    }
+
+                    console.log(documentSupportedFormats)
+                    return(
+                        <FileTypeSelect
+                            key={type.name}
+                            fileType={type.name}
+                            logoSrc={type.logoSrc}
+                            supportedFormat={type.supportedFormat}
+                            onSelect={(selectedType) => {
+                                setUseFileType(selectedType)
+                                setShowFileModal(true)
+                            }}
+                        />
+                    )
+                    
+                })}
 
                 {showFileModal && (
                     <ModalController
@@ -90,7 +115,14 @@ function ModalController({ useFileType, onClose }) {
     const [isShowErrorAlert, setIsShowErrorAlert] = useState(false)
 
     const selectedType = conversionTypes.find(type => type.name === useFileType)
-    const acceptFormats = selectedType ? selectedType.supportedFormat.map(f => `.${f}`).join(",") : ""
+    let acceptFormats = ""
+    
+    if(useFileType === "Document"){
+        acceptFormats = selectedType ? Object.keys(conversionTypes.find(item => item.name === "Document").supportedFormat).map(f => `.${f}`).join(",") : ""
+    } else {
+        acceptFormats = selectedType ? selectedType.supportedFormat.map(f => `.${f}`).join(",") : ""
+    }
+
 
     useEffect(() => {
         if (!isConverting || !fileIDRef.current) return
@@ -189,12 +221,12 @@ function ModalController({ useFileType, onClose }) {
             {step === 'uploading' && (
                 <ProgressStep fileName={selectedFile?.name} progress={uploadProgress} />
             )}
-
             {step === 'convert' && (
                 <ConvertStep 
+                    useFileType={useFileType}
                     fileName={selectedFile?.name}
                     currentFormat={currentFormat}
-                    supportedFormats={selectedType?.supportedFormat || []}
+                    supportedFormats={selectedType.name === "Document" ? documentSupportedFormats : selectedType?.supportedFormat || []}
                     selectedConversionFormat={selectedConversionFormat}
                     setSelectedConversionFormat={setSelectedConversionFormat}
                     convertProgress={convertProgress}
@@ -270,7 +302,7 @@ function ProgressStep({ fileName, progress }) {
 }
 
 function ConvertStep({ 
-    fileName, currentFormat, supportedFormats, selectedConversionFormat, 
+    useFileType, fileName, currentFormat, supportedFormats, selectedConversionFormat, 
     setSelectedConversionFormat, convertProgress, convertedFileID, isConverting, onConvert, onClose 
 }) {
     return (
@@ -291,18 +323,34 @@ function ConvertStep({
                             {selectedConversionFormat}
                         </div>
                         <ul tabIndex={-1} className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
-                            {supportedFormats.map(format => {
-                                if (format.toLowerCase() === currentFormat.toLowerCase()) return null
-                                return (
-                                    <li key={format} onClick={() => setSelectedConversionFormat(format)}>
-                                        <a>{format}</a>
-                                    </li>
-                                )
-                            })}
+                            {
+                                useFileType !== "Document"
+                                ?
+                                    supportedFormats.map(format => {
+                                        if (format.toLowerCase() === currentFormat.toLowerCase()) {
+                                            return null
+                                        }
+                                        return (
+                                            <li
+                                                key={format}
+                                                onClick={() => setSelectedConversionFormat(format)}
+                                            >
+                                                <a>{format}</a>
+                                            </li>
+                                        )
+                                    })
+                                :
+                                    documentSupportedFormatsRaw[currentFormat].map(format => {
+                                        return (
+                                            <li key={format} onClick={() => setSelectedConversionFormat(format)}>
+                                                <a>{format}</a>
+                                            </li>
+                                        )
+                                    })
+                            }
                         </ul>
                     </div>
                 </div>
-
                 <progress className="progress progress-error w-56" value={convertProgress} max="100" />
                 <button 
                     className={`convert-btn ${isConverting ? "disable-btn" : ""}`} 
@@ -321,7 +369,6 @@ function ConvertStep({
                 >
                     Download
                 </button>}
-                
             </div>
         </div>
     )

@@ -240,7 +240,7 @@ app.get('/convert/download/:filename', (req, res) => {
         if(err){
             console.log(err)
             res.status.send('File download failed')
-        }
+        }   
     })
 })
 
