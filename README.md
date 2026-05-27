@@ -14,23 +14,44 @@
 
 ## Installation
 
-1. Clone this repository
-
-2. Install client modules
+<b>1. Clone this repository</b>
 ```bash
-cd client
-npm install
+git clone https://github.com/Kreo141/Basic-Tools.git
 ```
 
-3. Move up 1 directory
+<b>2. Go to the Basic-Tools directory</b>
 ```bash
-cd ..
+cd Basic-Tools
 ```
 
-4. Install server modules
+<b>3. Build docker compose</b>
 ```bash
-cd server
-npm install
+docker compose build
+```
+if you want it to start after building:
+```bash
+docker compose up --build
+```
+
+## How to use it
+- Acess the frontend
+<a href="asdasd">http://localhost:5173/</a>
+
+## Additional Tips
+- Restart automatically except when you manually stop it
+```docker
+services:
+  server:
+    build: ./server
+    ports:
+      - "5001:5001"
+    restart: unless-stopped
+  client:
+    build: ./client
+    ports:
+     - "5173:5173"
+    depends_on:
+      - server
 ```
 
 ## Built With
