@@ -1,9 +1,11 @@
 import './uploadStyles.css'
 import { useState, useEffect, useRef } from 'react'
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faX, faCloud, faRightLong } from '@fortawesome/free-solid-svg-icons'
+
+import { uploadFileService } from '../services/uploadFileService.js'
 import conversionTypes from './conversionTypes.json'
-import { uploadFileService } from './services/uploadFileService.js'
 
 // HELPER/s
 const getFileExtension = (filename) => {
