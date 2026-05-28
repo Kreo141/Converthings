@@ -11,7 +11,7 @@ function AppContent(){
 
   const isNavVisible = location.pathname != "/" 
 
-  return (
+  return (  
     <>
         { isNavVisible &&
           <nav className='navigator'>

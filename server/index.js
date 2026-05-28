@@ -1,10 +1,10 @@
 const express = require('express')
 const cors = require('cors')
-const multer = require('multer')
+const path = require('path')
 const fs = require('fs')
+const multer = require('multer')
 const ffmpeg = require('fluent-ffmpeg')
 const { exec } = require('child_process')
-const path = require('path')
 
 const app = express()
 
@@ -41,9 +41,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-app.get('/', (req, res) => {
-    res.json({ message: "Hello from express" })
-})
 
 //* Init Important Variables
 const conversionProgress = {} 
@@ -254,6 +251,11 @@ app.get('/convert/progress/:id', (req, res) => {
     })
 })
 
+app.use(express.static(path.join(__dirname, 'public')))
+
+app.get((req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'))
+})
 
 
 const PORT = 5001
