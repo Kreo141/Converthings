@@ -8,6 +8,18 @@ import conversionTypes from "./assets/configs/conversionTypes.json";
 
 import "./App.css";
 
+import AudioIcon from "./assets/icons/AudioIcon.svg";
+import VideoIcon from "./assets/icons/VideoIcon.svg";
+import ImageIcon from "./assets/icons/ImageIcon.svg";
+import DocumentIcon from "./assets/icons/DocumentIcon.svg";
+
+const FileIcons = {
+  Audio: AudioIcon,
+  Video: VideoIcon,
+  Image: ImageIcon,
+  Document: DocumentIcon
+}
+
 // HELPER/s
 const getFileExtension = (filename) => {
   if (!filename) return "";
@@ -33,8 +45,8 @@ function FileConverter() {
   const [useFileType, setUseFileType] = useState("file");
 
   return (
-    <div className="file-converter-root">
-      <div className="page file-converter-wrapper">
+    <div className="page file-converter-root">
+      <div className="file-converter-wrapper">
         {conversionTypes.map((type) => {
           if (type.name == "Document") {
             return (
@@ -80,6 +92,8 @@ function FileConverter() {
 // FILE TYPE CARD COMPONENT
 // ==========================================
 function FileTypeSelect({ fileType, logoSrc, supportedFormat, onSelect }) {
+  const IconComponent = FileIcons[fileType]
+
   const visibleFormats = supportedFormat.slice(0, 5).join(", ");
   const hasMore = supportedFormat.length > 5;
 
@@ -91,10 +105,10 @@ function FileTypeSelect({ fileType, logoSrc, supportedFormat, onSelect }) {
     >
       <div className="left flex-row-centerx">
         <div className="file-type-logo-container">
-          <img
-            className="file-type-logo"
-            src={logoSrc}
-            alt={`${fileType} logo`}
+          <img 
+            className="file-type-logo" 
+            src={FileIcons[fileType]} 
+            alt={`${fileType} logo`} 
           />
         </div>
       </div>
@@ -464,7 +478,21 @@ function ConvertStep({
 }
 
 function App() {
-  return <FileConverter />;
+  return(
+    <>
+      <div className="nav">
+        <div className="nav-inner">
+          <div className="logo-container">
+            <img className="logo-icon"></img>
+            <a className="logo-label" href="/">Converthings</a>
+          </div>
+        </div>
+
+        <button className="settings-btn">Settings</button>
+      </div>
+      <FileConverter />
+    </>
+  )
 }
 
 export default App;

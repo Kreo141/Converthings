@@ -16,7 +16,7 @@
     },
     {
         "name" : "Document",
-        "logoSrc" : "https://static.thenounproject.com/png/684885-200.png",
+        "logoSrc" : "./assets/icons/DocumentIcon.svg",
         "supportedFormat" : {
             "docx": ["pdf", "doc", "odt", "rtf", "txt", "html", "epub"],
             "doc": ["pdf", "docx", "odt", "rtf", "txt", "html"],
