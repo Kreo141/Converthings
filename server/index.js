@@ -271,7 +271,7 @@ app.get('/convert/download/:convertKey', (req, res) => {
 })
 
 app.get('/convert/deleteOriginalFile/:convertKey', (req, res) => {
-    fs.unlink(`./uploads/toConvert/${conversionTask[req.params.convertKey].filename}`, (err) => {
+    fs.unlink(`./uploads/toConvert/${conversionTask[req.params.convertKey].fileID}`, (err) => {
         if(err){
             console.log("Failed to delete original file: ", err)
             return
