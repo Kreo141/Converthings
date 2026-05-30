@@ -221,6 +221,7 @@ function ModalController({ useFileType, onClose }) {
       if (!req.ok) {
         const errorData = await req.json();
         console.log(errorData.error);
+        setIsConverting(false)
         handleError();
         return;
       }
@@ -279,10 +280,10 @@ function ModalController({ useFileType, onClose }) {
       )}
 
       {isShowErrorAlert && (
-        <div role="alert" class="alert alert-error">
+        <div role="alert" className="alert alert-error">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            class="h-6 w-6 shrink-0 stroke-current"
+            className="h-6 w-6 shrink-0 stroke-current"
             fill="none"
             viewBox="0 0 24 24"
           >

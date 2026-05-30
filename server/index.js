@@ -8,15 +8,13 @@ const { exec } = require('child_process')
 
 const app = express()
 
-const isDev = true
+const isDev = false
 
+const libreofficeLocation = isDev ? "C:/Program Files/LibreOffice/program/" : ""
+const sofficeCmd = isDev ? "soffice.com" : "soffice"
+const magickCmd = isDev ? "magick" : "convert"
 if(isDev){
     ffmpeg.setFfmpegPath('E:/DevEnv/Projects/MajorProjects/Basic-Tools/ffmpeg-2026-05-13-git-a327bc0561-essentials_build/bin/ffmpeg.exe')
-}
-
-let libreofficeLocation = ""
-if(isDev){
-    libreofficeLocation = "C:/Program Files/LibreOffice/program/"
 }
 
 app.use(cors())
@@ -185,7 +183,7 @@ app.post('/convert/Image', (req, res) => {
     const { fileID, originalFormat, toConvertTo } = req.body
     console.log(fileID)
     exec(
-        `magick "./uploads/toConvert/${fileID}" "./uploads/converted/${fileID}.${toConvertTo}"`,
+        `${magickCmd} "./uploads/toConvert/${fileID}" "./uploads/converted/${fileID}.${toConvertTo}"`,
         (error) => {
             if(error){
                 console.log(error)
@@ -209,7 +207,7 @@ app.post('/convert/Document', (req, res) => {
     console.log(fileID)
 
     exec(
-        `"${libreofficeLocation}soffice.com" --headless --convert-to ${toConvertTo} --outdir ./uploads/converted/ ./uploads/toConvert/${fileID} `,
+        `"${libreofficeLocation}${sofficeCmd}" --headless --convert-to ${toConvertTo} --outdir ./uploads/converted/ ./uploads/toConvert/${fileID} `,
         (error) => {
             if(error){
                 console.log(error.message)
@@ -242,12 +240,12 @@ app.get('/convert/download/:filename', (req, res) => {
 })
 
 
-//* Progress Feedback
+//* Polling
 app.get('/convert/progress/:id', (req, res) => {
     const fileID = req.params.id
 
     res.json({
-        progress: conversionProgress[fileID]
+        progress: conversionProgress[fileID] ? conversionProgress[fileID] : -1
     })
 })
 

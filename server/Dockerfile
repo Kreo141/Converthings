@@ -6,7 +6,10 @@ RUN apt-get update  && apt-get install -y \
     ffmpeg \
     imagemagick \
     libreoffice \
+    potrace \
     && apt-get clean
+
+    # potrace added for imagemagick
 
 RUN mkdir -p uploads/converted
 
