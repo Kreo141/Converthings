@@ -5,10 +5,11 @@ const fs = require('fs')
 const multer = require('multer')
 const ffmpeg = require('fluent-ffmpeg')
 const { exec } = require('child_process')
+const crypto = require('crypto')
 
 const app = express()
 
-const isDev = false
+const isDev = true
 
 const libreofficeLocation = isDev ? "C:/Program Files/LibreOffice/program/" : ""
 const sofficeCmd = isDev ? "soffice.com" : "soffice"
@@ -42,6 +43,7 @@ const upload = multer({ storage });
 
 //* Init Important Variables
 const conversionProgress = {} 
+const conversionTask = {}
 
 
 //* Uploading Routes
@@ -51,9 +53,13 @@ app.post('/convert/upload', upload.single('file'), (req, res) => {
     }
     console.log("File received:", req.file);
 
+    const newConvertKey = crypto.randomBytes(32).toString('hex');
+
+    conversionTask[newConvertKey] = {fileID: req.file.filename, convertedFileID: null, progress: 0}
+
     res.json({
         message: "File received for conversion",
-        filename: req.file.filename,
+        convertKey: newConvertKey,
         originalName: req.file.originalname,
     });
 })
@@ -98,8 +104,10 @@ const presets = {
 app.post('/convert/Video', (req, res) => {
     console.log('Video Conversion Request')
 
-    const { fileID, originalFormat, toConvertTo } = req.body
+    const { convertKey, originalFormat, toConvertTo } = req.body
 
+    const fileID = conversionTask[convertKey].fileID
+    console.log(fileID)
     const preset = presets[toConvertTo] || presets.defaultPreset
 
     console.log(req.body)
@@ -116,17 +124,15 @@ app.post('/convert/Video', (req, res) => {
         })
         .on('progress', progress => {
             console.log(progress)
-            console.log(conversionProgress[fileID])
-            conversionProgress[fileID] = progress.percent || 0
+            conversionTask[convertKey].progress = progress.percent || 0
         })
         .on('end', () => {
             console.log('Conversion done')
 
-            conversionProgress[fileID] = 100
-
+            conversionTask[convertKey].progress = 100
+            conversionTask[convertKey].convertedFileID = `${fileID}.${toConvertTo}`
             res.json({
                 message: "File Converted!",
-                convertedFileID: `${fileID}.${toConvertTo}`
             })
         })
         .on('error', err => {
@@ -143,9 +149,10 @@ app.post('/convert/Video', (req, res) => {
 app.post('/convert/Audio', (req, res) => {
     console.log('Audio Conversion Request')
 
-    const { fileID, originalFormat, toConvertTo } = req.body
+    const { convertKey, originalFormat, toConvertTo } = req.body
 
-    console.log(req.body)
+    const fileID = conversionTask[convertKey].fileID
+    console.log(fileID)
 
     ffmpeg()
         .input(`uploads/toConvert/${fileID}`)
@@ -157,15 +164,14 @@ app.post('/convert/Audio', (req, res) => {
         .on('progress', progress => {
             console.log(progress)
 
-            conversionProgress[fileID] = progress.percent || 0
+            conversionTask[convertKey].progress = progress.percent || 0
         })
         .on('end', () => {
             console.log('Conversion done')
-            console.log(conversionProgress[fileID])
-            conversionProgress[fileID] = 100
+            conversionTask[convertKey].progress = 100
+            conversionTask[convertKey].convertedFileID = `${fileID}.${toConvertTo}`
             res.json({
                 message: "File Converted!",
-                convertedFileID: `${fileID}.${toConvertTo}`
             })
         })
         .on('error', err => {
@@ -180,8 +186,8 @@ app.post('/convert/Audio', (req, res) => {
 
 app.post('/convert/Image', (req, res) => {
     console.log("Image Conversion Request")
-    const { fileID, originalFormat, toConvertTo } = req.body
-    console.log(fileID)
+    const { convertKey, toConvertTo } = req.body
+    const fileID = conversionTask[convertKey].fileID
     exec(
         `${magickCmd} "./uploads/toConvert/${fileID}" "./uploads/converted/${fileID}.${toConvertTo}"`,
         (error) => {
@@ -192,10 +198,10 @@ app.post('/convert/Image', (req, res) => {
                 })
             }
 
-            conversionProgress[fileID] = 100
+            conversionTask[convertKey].progress = 100
+            conversionTask[convertKey].convertedFileID = `${fileID}.${toConvertTo}`
             res.json({
-                message: "File Converted",
-                convertedFileID: `${fileID}.${toConvertTo}`
+                message: "File Converted"
             })
         }
     )
@@ -203,8 +209,8 @@ app.post('/convert/Image', (req, res) => {
 
 app.post('/convert/Document', (req, res) => {
     console.log("Document Conversion Request")
-    const { fileID, toConvertTo} = req.body
-    console.log(fileID)
+    const { convertKey, toConvertTo} = req.body
+    const fileID = conversionTask[convertKey].fileID
 
     exec(
         `"${libreofficeLocation}${sofficeCmd}" --headless --convert-to ${toConvertTo} --outdir ./uploads/converted/ ./uploads/toConvert/${fileID} `,
@@ -219,17 +225,42 @@ app.post('/convert/Document', (req, res) => {
             const slice = fileID.split('.')
             const newFileName = `${slice[0]}.${toConvertTo}`
             
-            conversionProgress[fileID] = 100
+            conversionTask[convertKey].progress = 100
+            conversionTask[convertKey].convertedFileID = `${newFileName}`
             res.json({
-                convertedFileID: newFileName
+                message: "File Converted!"
             })
         }
     )
 })
 
+//* Polling
+app.get('/convert/progress/:convertKey', (req, res) => {
+    const fileID = conversionTask[req.params.convertKey].convertedFileID
+
+    res.json({
+        progress: conversionTask[req.params.convertKey].progress ? conversionTask[req.params.convertKey].progress : -1
+    })
+})
+
+app.use(express.static(path.join(__dirname, 'public')))
+
+app.get((req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'))
+})
+
 //* Download Converted File
-app.get('/convert/download/:filename', (req, res) => {
-    const filePath = `./uploads/converted/${req.params.filename}`
+app.get('/convert/download/:convertKey', (req, res) => {
+    const filePath = `./uploads/converted/${conversionTask[req.params.convertKey].convertedFileID}`
+    console.log(filePath)
+    console.log(req.params.convertKey)
+
+    if(!filePath || !conversionTask[req.params.convertKey]){
+        return res.status(404).json({
+            message: "Converted file not found",
+            key: req.params.convertKey
+        })
+    }
 
     res.download(filePath, (err) => {
         if(err){
@@ -239,20 +270,15 @@ app.get('/convert/download/:filename', (req, res) => {
     })
 })
 
+app.get('/convert/deleteOriginalFile/:convertKey', (req, res) => {
+    fs.unlink(`./uploads/toConvert/${conversionTask[req.params.convertKey].filename}`, (err) => {
+        if(err){
+            console.log("Failed to delete original file: ", err)
+            return
+        }
 
-//* Polling
-app.get('/convert/progress/:id', (req, res) => {
-    const fileID = req.params.id
-
-    res.json({
-        progress: conversionProgress[fileID] ? conversionProgress[fileID] : -1
+        console.log("Original File Deleted")
     })
-})
-
-app.use(express.static(path.join(__dirname, 'public')))
-
-app.get((req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'))
 })
 
 

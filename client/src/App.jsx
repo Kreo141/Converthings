@@ -3,8 +3,8 @@ import { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faX, faCloud, faRightLong } from "@fortawesome/free-solid-svg-icons";
 
-import { uploadFileService } from "./assets/services/uploadFileService.js";
-import conversionTypes from "./assets/configs/conversionTypes.json";
+import { uploadFileService } from "./services/uploadFileService.js";
+import conversionTypes from "./configs/conversionTypes.json";
 
 import "./App.css";
 
@@ -35,7 +35,7 @@ const documentSupportedFormats = Object.keys(documentSupportedFormatsRaw);
 
 const serverDev = "http://192.168.100.12:5001";
 const serverProd = "http://server:5001";
-const isDev = true ? serverDev : serverProd;
+const serverLocation = true ? serverDev : serverProd;
 
 // ==========================================
 // MAIN CONTAINER
@@ -127,7 +127,7 @@ function FileTypeSelect({ fileType, logoSrc, supportedFormat, onSelect }) {
 // MODAL STATE CONTROLLER & WORKFLOW
 // ==========================================
 function ModalController({ useFileType, onClose }) {
-  const fileIDRef = useRef(null);
+  const convertKey = useRef(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [currentFormat, setCurrentFormat] = useState("");
 
@@ -161,12 +161,12 @@ function ModalController({ useFileType, onClose }) {
   }
 
   useEffect(() => {
-    if (!isConverting || !fileIDRef.current) return;
+    if (!isConverting || !convertKey.current) return;
 
     const intervalId = setInterval(async () => {
       try {
         const req = await fetch(
-          `${isDev}/convert/progress/${fileIDRef.current}`,
+          `${serverLocation}/convert/progress/${convertKey.current}`,
         );
         const data = await req.json();
         const progressInt = Math.trunc(data.progress);
@@ -193,7 +193,7 @@ function ModalController({ useFileType, onClose }) {
       const data = await uploadFileService(file, file.name, (percent) =>
         setUploadProgress(percent),
       );
-      fileIDRef.current = data.filename;
+      convertKey.current = data.convertKey;
       setStep("convert");
     } catch (error) {
       alert(error.message || "Upload failed");
@@ -208,11 +208,11 @@ function ModalController({ useFileType, onClose }) {
     setConvertProgress(0);
 
     try {
-      const req = await fetch(`${isDev}/convert/${useFileType}`, {
+      const req = await fetch(`${serverLocation}/convert/${useFileType}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          fileID: fileIDRef.current,
+          convertKey: convertKey.current,
           originalFormat: currentFormat,
           toConvertTo: selectedConversionFormat,
         }),
@@ -242,13 +242,35 @@ function ModalController({ useFileType, onClose }) {
     }, 2000);
   }
 
+  const downloadConvertedFile = () => {
+    const link = document.createElement("a")
+    link.href = `${serverLocation}/convert/download/${convertKey.current}`;
+
+    link.setAttribute("download", "")
+
+    document.body.appendChild(link)
+    link.click()
+
+    document.body.removeChild(link)
+  }
+  
+  const deleteUploadedFile = () => {
+    try{
+      fetch(`${serverLocation}/convert/deleteOriginalFile/${convertKey.current}`)
+    } catch(error){
+      console.error(error)
+    }
+  }
+
   return (
     <div className="upload-file-modal-container">
       {step === "select" && (
         <UploadStep
           useFileType={useFileType}
           acceptFormats={acceptFormats}
-          onClose={onClose}
+          onClose={ () => {
+            onClose()
+          }}
           onFileValidated={(file) => {
             setSelectedFile(file);
             handleUpload(file);
@@ -273,9 +295,13 @@ function ModalController({ useFileType, onClose }) {
           setSelectedConversionFormat={setSelectedConversionFormat}
           convertProgress={convertProgress}
           convertedFileID={convertedFileID}
+          downloadConvertedFile={downloadConvertedFile}
           isConverting={isConverting}
           onConvert={handleConversion}
-          onClose={onClose}
+          onClose={ () => {
+            onClose()
+            deleteUploadedFile()
+          }}
         />
       )}
 
@@ -394,6 +420,7 @@ function ConvertStep({
   setSelectedConversionFormat,
   convertProgress,
   convertedFileID,
+  downloadConvertedFile,
   isConverting,
   onConvert,
   onClose,
@@ -466,9 +493,7 @@ function ConvertStep({
         {convertProgress == 100 && !isConverting && (
           <button
             className={`download-btn ${convertProgress == 100 ? "" : "disable-btn"}`}
-            onClick={() => {
-              window.location.href = `${isDev}/convert/download/${convertedFileID}`;
-            }}
+            onClick={() => downloadConvertedFile()}
           >
             Download
           </button>
